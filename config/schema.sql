@@ -1,0 +1,1 @@
+create table timeStampData (id varchar, deviceTime timestamp, field1 varchar,field2 varchar);
