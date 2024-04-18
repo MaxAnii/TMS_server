@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const router = require("./routes/mainRoutes");
 const cors = require("cors");
+const port = process.env.PORT;
 app.use(express.json());
 app.use(
 	cors({
@@ -13,6 +14,8 @@ app.use(
 
 app.use("/data", router);
 
-app.listen(3000, () => {
-	console.log("server is up");
+app.listen(port, () => {
+	console.log(`server is live at ${port}`);
 });
+
+module.exports = app;
