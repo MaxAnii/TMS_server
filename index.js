@@ -13,7 +13,9 @@ app.use(
 );
 
 app.use("/data", router);
-
+app.get("/", (req, res) => {
+	res.send("i'm live");
+});
 app.listen(port, () => {
 	console.log(`server is live at ${port}`);
 });
