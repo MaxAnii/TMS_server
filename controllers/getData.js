@@ -16,9 +16,7 @@ const getData = async (req, res) => {
 			});
 		}
 	} catch (error) {
-		console.log(error.message);
-	} finally {
-		pool.end();
+		res.status(400).send("bad request");
 	}
 };
 

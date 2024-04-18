@@ -14,8 +14,7 @@ const insertData = async (req, res) => {
 			res.status(500).send("failure");
 		}
 	} catch (error) {
-	} finally {
-		pool.end();
+		res.status(400).send("bad request");
 	}
 };
 
