@@ -1,7 +1,7 @@
 const pool = require("../config/db");
 const getData = async (req, res) => {
 	try {
-		const { startingTimeStamp, endingTimeStamp } = req.body;
+		const { startingTimeStamp, endingTimeStamp } = req.params;
 		const data = await pool.query(
 			`SELECT * FROM timeStampData WHERE devicetime BETWEEN $1 AND $2`,
 			[startingTimeStamp, endingTimeStamp]
