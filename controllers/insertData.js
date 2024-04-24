@@ -2,11 +2,11 @@ const pool = require("../config/db");
 const getTimestamp = require("../libs/timeStamp");
 const insertData = async (req, res) => {
 	try {
-		const { id, field1, field2 } = req.body;
-		const timestamp = getTimestamp();
+		const { device_id, user_type } = req.body;
+		const on_board_time = getTimestamp();
 		const data = await pool.query(
-			`INSERT INTO timeStampData VALUES($1,$2,$3,$4) RETURNING *`,
-			[id, timestamp, field1, field2]
+			`INSERT INTO tripInformation VALUES($1,$2,$3) RETURNING *`,
+			[device_id, on_board_time, user_type]
 		);
 		if (data.rows.length) {
 			res.status(200).send("success");
