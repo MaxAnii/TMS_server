@@ -20,6 +20,8 @@ const insertTripDetail = async (req, res) => {
 
 const getTripDetails = async (req, res) => {
 	try {
+		const { date } = req.params;
+		console.log(req.params);
 		const query = getTripDetailsQuery(date);
 		const data = await pool.query(query);
 		res.json(data.rows);
