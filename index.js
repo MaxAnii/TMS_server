@@ -12,7 +12,8 @@ app.use(
 	})
 );
 
-app.use("/data", router);
+app.use("/", router);
+
 app.get("/", (req, res) => {
 	res.send("i'm live");
 });
