@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const getComparisonDataQuery = require("../Queries/comparisonData");
 const insertPassengerData = async (req, res) => {
 	try {
 		const { device_id, on_board_time, user_type } = req.body;
@@ -17,4 +18,22 @@ const insertPassengerData = async (req, res) => {
 	}
 };
 
-module.exports = insertPassengerData;
+const getComparisonData = async (req, res) => {
+	try {
+		const { date } = req.params;
+		const query = getComparisonDataQuery(date);
+		const data = await pool.query(query);
+		console.log(data.rows);
+		if (data.rows.length) {
+			console.log("sent");
+			res.status(200).json(data.rows);
+		} else
+			res.status(404).json({
+				message: "No data found",
+			});
+	} catch (error) {
+		res.status(400).send(error.message);
+	}
+};
+
+module.exports = { insertPassengerData, getComparisonData };
