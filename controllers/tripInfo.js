@@ -21,13 +21,15 @@ const insertTripDetail = async (req, res) => {
 const getTripDetails = async (req, res) => {
 	try {
 		const { date } = req.params;
-		console.log(req.params);
 		const query = getTripDetailsQuery(date);
 		const data = await pool.query(query);
-		res.json(data.rows);
+		if (data.rows.length) {
+			res.status(200).send("success");
+		} else {
+			res.status(500).send("failure");
+		}
 	} catch (error) {
-		console.log(error.message);
+		res.status(400).send(error.message);
 	}
 };
-
 module.exports = { insertTripDetail, getTripDetails };
