@@ -12,11 +12,6 @@ router.use("/passenger", passengerRouter);
 router.use("/trip", tripRouter);
 router.use("/device", deviceRouter);
 
-
-
-
-
-
-router.use("/quick-data",quickDataRouter);
+router.use("/quick-data", quickDataRouter);
 
 module.exports = router;
