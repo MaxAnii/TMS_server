@@ -24,7 +24,7 @@ const getTripDetails = async (req, res) => {
 		const query = getTripDetailsQuery(date);
 		const data = await pool.query(query);
 		if (data.rows.length) {
-			res.status(200).send("success");
+			res.status(200).json(data.rows);
 		} else {
 			res.status(500).send("failure");
 		}
