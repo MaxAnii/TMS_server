@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const getQuickData = async (req, res) => {
 	try {
 		const { date } = req.params;
-		console.log(req.params);
+
 		const data = await pool.query(
 			`SELECT 
 			COALESCE(SUM(CASE WHEN user_type = '1' THEN 1 ELSE 0 END), 0) AS employees,
