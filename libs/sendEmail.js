@@ -2,7 +2,7 @@ const transporter = require("../config/nodeMailer");
 const { resetLinkEmailTemplate } = require("./emailTemplate");
 const sendPasswordResetMail = async (email, token) => {
 	console.log(email, token);
-	const confrimLink = `http://localhost:3000/emailverification?token=${token}`;
+	const confrimLink = `http://localhost:5173/verifyresettoken?token=${token}`;
 	await transporter.sendMail({
 		from: process.env.TRANSPORTER_FROM,
 		to: email,
