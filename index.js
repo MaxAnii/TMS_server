@@ -3,18 +3,21 @@ const app = express();
 const router = require("./routes/mainRoutes");
 const cors = require("cors");
 const getTimestamp = require("./libs/timeStamp");
+const cookieParser = require("cookie-parser");
 const port = process.env.PORT;
 app.use(express.json());
+app.use(cookieParser());
 app.use(
 	cors({
-		origin: "*",
+		origin: "http://localhost:5173",
 		methods: ["GET", "POST", "PUT", "DELETE"],
 		allowedHeaders: ["Content-Type"],
+		credentials: true,
 	})
 );
 
 app.use("/", router);
-console.log(getTimestamp());
+
 app.get("/", (req, res) => {
 	res.send("i'm live");
 });
