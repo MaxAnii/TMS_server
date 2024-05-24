@@ -5,23 +5,60 @@ const { generateToken, getTokenInformation } = require("../libs/resetToken");
 const login = async (req, res) => {
 	try {
 		const { email, password } = req.body;
-		const data = await pool.query(`SELECT * FROM users WHERE "email"=$1`, [
+		const data = await pool.query(`SELECT * FROM users WHERE email = $1`, [
 			email,
 		]);
-		if (!data.rows.length) {
-			res.status(401).json({ message: "Email not found." });
+
+		if (!data.rowCount) {
+			return res.status(401).json({ message: "Email not found." });
 		}
-		const hashedPassword = data.rows[0].password;
-		const passwordMatches = await bcrypt.compare(password, hashedPassword);
+
+		const user = data.rows[0];
+		const passwordMatches = await bcrypt.compare(password, user.password);
+
 		if (!passwordMatches) {
-			res.status(401).json({ message: "Incorrect password." });
+			return res.status(401).json({ message: "Incorrect password." });
 		}
-		res.status(200).json({ message: "Success." });
+
+		res.cookie(
+			"user",
+			{ id: user.id, role: user.role, email: user.email },
+			{
+				httpOnly: true,
+				sameSite: "strict",
+				secure: false, // Set this to true in production with HTTPS
+			}
+		);
+
+		return res.status(200).json({ message: "Login successful" });
+	} catch (error) {
+		console.error(error.message);
+		return res.status(500).json({ message: "Internal server error" });
+	}
+};
+
+const getCookie = async (req, res) => {
+	const user = req.cookies.user;
+	console.log(user);
+	if (user) {
+		return res.status(200).json(user);
+	} else {
+		return res.status(401).json({ message: "No user cookie found" });
+	}
+};
+const logout = async (req, res) => {
+	try {
+		res.cookie("user", "", {
+			expires: new Date(Date.now() + 5 * 1000),
+			httpOnly: true,
+		});
+		res
+			.status(200)
+			.json({ success: true, message: "User logged out successfully" });
 	} catch (error) {
 		console.log(error.message);
 	}
 };
-
 const sendPasswordResetLink = async (req, res) => {
 	try {
 		const { email } = req.params;
@@ -29,11 +66,10 @@ const sendPasswordResetLink = async (req, res) => {
 			email,
 		]);
 		if (!data.rowCount) {
-			res.status(401).json({ message: "Email not found." });
-		} else {
-			await generateToken(email);
-			res.status(200).json({ message: "Reset link sent." });
+			return res.status(401).json({ message: "Email not found." });
 		}
+		await generateToken(email);
+		return res.status(200).json({ message: "Reset link sent." });
 	} catch (error) {
 		console.log(error.message);
 	}
@@ -44,15 +80,17 @@ const verifyResetToken = async (req, res) => {
 		const { token } = req.params;
 		const data = await getTokenInformation(token);
 		if (!data) {
-			res.status(404).json({ message: "Token not found." });
+			return res.status(404).json({ message: "Token not found." });
 		}
 		const tokenExpireTime = data.expiretime;
 		const hasExpired = new Date(tokenExpireTime) < new Date();
 		if (hasExpired) {
-			res.status(400).json({ message: "Token is expired." });
+			return res.status(400).json({ message: "Token is expired." });
 		}
 		res.status(200).json({ message: "Token verified" });
-	} catch (error) {}
+	} catch (error) {
+		console.log(error.message);
+	}
 };
 
 const createNewPassword = async (req, res) => {
@@ -61,8 +99,7 @@ const createNewPassword = async (req, res) => {
 
 		const tokenData = await getTokenInformation(token);
 		if (!tokenData) {
-			res.status(404).json({ message: "Token not found." });
-			return;
+			return res.status(404).json({ message: "Token not found." });
 		}
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const email = tokenData.email;
@@ -70,10 +107,8 @@ const createNewPassword = async (req, res) => {
 			`UPDATE users SET "password" = $1 WHERE "email"=$2 RETURNING *`,
 			[hashedPassword, email]
 		);
-		console.log("test", data.rowCount);
 		if (!data.rows.length) {
-			res.status(404).json({ message: "Database error." });
-			return;
+			return res.status(404).json({ message: "Database error." });
 		}
 		res.status(200).json({ message: "Password updated." });
 	} catch (error) {
@@ -83,7 +118,9 @@ const createNewPassword = async (req, res) => {
 
 module.exports = {
 	login,
+	logout,
 	sendPasswordResetLink,
 	verifyResetToken,
 	createNewPassword,
+	getCookie,
 };
